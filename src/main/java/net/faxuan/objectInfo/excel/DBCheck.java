@@ -1,5 +1,7 @@
 package net.faxuan.objectInfo.excel;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,9 +10,13 @@ import java.util.Map;
  * 数据库检查sheet
  */
 public class DBCheck {
+    @JSONField(name = "contacctID",ordinal = 1)
     private String contactId; //关联caseID
+    @JSONField(name = "sql",ordinal = 2)
     private String sql;
+    @JSONField(name = "resultIsNull",ordinal = 3)
     private boolean resultIsNull;
+    @JSONField(name = "checkPoint",ordinal = 4)
     private Map<Object,Object> checkPoint;
 
     public String getContactId() {

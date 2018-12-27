@@ -1,5 +1,6 @@
 package net.faxuan.interfaceTest.util;
 
+import com.alibaba.fastjson.JSON;
 import net.faxuan.interfaceTest.exception.CheckException;
 import net.faxuan.objectInfo.caseObject.Case;
 import net.faxuan.objectInfo.excel.CaseCheck;
@@ -32,8 +33,17 @@ public class ExcelUtil {
     private String host = "";
 
 
+    public static void main(String[] ages) {
+        new ExcelUtil().readExcel("/Users/songrenkun/Downloads/接口测试用例模板.xlsx");
+    }
 
-    public ExcelUtil readExcel(String excelPath) {
+    /**
+     * 读取Excel中用例信息，
+     * 创建host和MySQL连接方式配置文件
+     * @param excelPath  Excel文件路径
+     * @return 返回用例的实例
+     */
+    public List<Case> readExcel(String excelPath) {
         List<InterfaceInfo> interfaceInfos = new ArrayList<>();
         List<CaseCheck> caseChecks = new ArrayList<>();
         List<DBCheck> dbChecks = new ArrayList<>();
@@ -105,6 +115,7 @@ public class ExcelUtil {
                 caseCheck.setStatusCode(getCellStringValue(statusCodeCell));
                 caseCheck.setResponseCheck(getCellStringValue(responseCheckCell));
                 caseChecks.add(caseCheck);
+
             }
 
 
@@ -133,9 +144,10 @@ public class ExcelUtil {
                 if (checkP.equals("") || checkP.length() <=0) {
                     dbCheck.setResultIsNull(true);
                 }else {
-                    dbCheck.setResultIsNull(true);
+                    dbCheck.setResultIsNull(false);
                 }
                 dbChecks.add(dbCheck);
+
             }
 
             /**
@@ -162,9 +174,9 @@ public class ExcelUtil {
 //System.out.println("用例数量：" + caseChecks.size());
         List<Case> cases = getCaseInfo(interfaceInfos,caseChecks,dbChecks);
         for (Case caseInfo:cases) {
-            System.out.println(caseInfo);
+            System.out.println(JSON.toJSONString(caseInfo));
         }
-        return this;
+        return getCaseInfo(interfaceInfos,caseChecks,dbChecks);
     }
 
     /**
@@ -213,21 +225,8 @@ public class ExcelUtil {
         return caseList;
     }
 
-    @Test
-    public void asd() {
-        File file = new File(this.getClass().getResource("/").getPath() + "/test.txt");
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.print(this.getClass().getResource("/mysql.properties").getPath());
 
-    }
 
-    public static void main(String[] ages) {
-        new ExcelUtil().readExcel("D:\\workspace\\接口测试用例模板.xlsx");
-    }
 
     /**
      * 将获取的所有类型值都转换为String

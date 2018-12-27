@@ -12,6 +12,11 @@ import java.util.Properties;
  */
 public class FileUtil {
 
+    /**
+     * 创建配置文件
+     * @param fileName
+     * @param fileContent
+     */
     public void createPropertiesFile(String fileName,Map<Object,Object> fileContent) {
         File file = new File(this.getClass().getResource("/").getPath() + "/" + fileName);
         try {
@@ -26,6 +31,10 @@ public class FileUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void createJsonFile(){
+
     }
 
 
