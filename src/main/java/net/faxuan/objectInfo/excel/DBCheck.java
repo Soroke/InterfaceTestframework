@@ -65,7 +65,6 @@ public class DBCheck {
         this.resultIsNull = resultIsNull;
     }
 
-
     @Override
     public String toString() {
         return ("SQL关联用例ID:" + contactId + "\tslq:" + sql + "\t查询结果是否为空：" + resultIsNull + "\t检查点：" + checkPoint);

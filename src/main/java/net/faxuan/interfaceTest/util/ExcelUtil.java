@@ -11,16 +11,14 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by song on 2018/12/25.
@@ -34,7 +32,7 @@ public class ExcelUtil {
 
 
     public static void main(String[] ages) {
-        new ExcelUtil().readExcel("/Users/songrenkun/Downloads/接口测试用例模板.xlsx");
+        new ExcelUtil().readExcelGetCase("D:\\workspace\\接口测试用例模板.xlsx");
     }
 
     /**
@@ -43,7 +41,7 @@ public class ExcelUtil {
      * @param excelPath  Excel文件路径
      * @return 返回用例的实例
      */
-    public List<Case> readExcel(String excelPath) {
+    public List<Case> readExcelGetCase(String excelPath) {
         List<InterfaceInfo> interfaceInfos = new ArrayList<>();
         List<CaseCheck> caseChecks = new ArrayList<>();
         List<DBCheck> dbChecks = new ArrayList<>();
@@ -172,10 +170,10 @@ public class ExcelUtil {
          * 获取所有用例的组合信息
          */
 //System.out.println("用例数量：" + caseChecks.size());
-        List<Case> cases = getCaseInfo(interfaceInfos,caseChecks,dbChecks);
-        for (Case caseInfo:cases) {
-            System.out.println(JSON.toJSONString(caseInfo));
-        }
+//        List<Case> cases = getCaseInfo(interfaceInfos,caseChecks,dbChecks);
+//        for (Case caseInfo:cases) {
+//            System.out.println(JSON.toJSONString(caseInfo));
+//        }
         return getCaseInfo(interfaceInfos,caseChecks,dbChecks);
     }
 
@@ -193,6 +191,7 @@ public class ExcelUtil {
             caseInfo.setId(caseCheck.getId());
             caseInfo.setName(caseCheck.getCaseName());
             caseInfo.setResponseCheck(caseCheck.getResponseCheck());
+            caseInfo.setStatusCode(caseCheck.getStatusCode());
             for (InterfaceInfo interfaceInfo:interfaceInfos) {
                 if (interfaceInfo.getId() == caseCheck.getContactId()) {
                     Map<Object,Object> params = new HashMap<>();
@@ -226,15 +225,13 @@ public class ExcelUtil {
     }
 
 
-
-
     /**
      * 将获取的所有类型值都转换为String
      * 如果当前字段为空 返回空字符串
      * @param cell
      * @return
      */
-    public String getCellStringValue(XSSFCell cell) {
+    private String getCellStringValue(XSSFCell cell) {
         String cellValue = "";
         try {
             switch (cell.getCellTypeEnum()) {
@@ -263,5 +260,6 @@ public class ExcelUtil {
         }
         return cellValue;
     }
+
 
 }

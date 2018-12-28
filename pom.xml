@@ -27,6 +27,11 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.1</version>
                 <configuration>
+                    <suiteXmlFiles>
+                        <!--参数化xml文件名-->
+                        <!--<suiteXmlFile>${xmlName}</suiteXmlFile>-->
+                        <suiteXmlFile>testNG.xml</suiteXmlFile>
+                    </suiteXmlFiles>
                     <workingDirectory>target/</workingDirectory>
                     <argLine>
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"

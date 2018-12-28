@@ -1,48 +1,59 @@
 package net.faxuan;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
+import net.faxuan.interfaceTest.core.Response;
+import net.faxuan.interfaceTest.exception.CheckException;
+import net.faxuan.interfaceTest.util.Check;
+import net.faxuan.interfaceTest.util.ExcelUtil;
+import net.faxuan.objectInfo.caseObject.Case;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.*;
+import static net.faxuan.interfaceTest.core.Http.post;
 
 /**
  * Created by song on 2018/12/25.
  */
-public class HttpClientTest {
-    @Test
-    public void cookieSpac() {
-        HttpClient httpClient = HttpClientBuilder.create().build();
-        HttpPost httpPost = new HttpPost("https://fzbd.t.faxuan.net/fzss/service/userService!doLogin.do");
-        List<NameValuePair> param = new ArrayList<NameValuePair>();
-        param.add(new BasicNameValuePair("userAccount", "AK05"));
-        param.add(new BasicNameValuePair("userPassword", "ceshi123"));
-        HttpEntity entity = new UrlEncodedFormEntity(param,UTF_8);
-        httpPost.setEntity(entity);
-        HttpResponse httpResponse = null;
-        try {
-            httpResponse = httpClient.execute(httpPost);
-        } catch (IOException e) {
-            e.printStackTrace();
+public class HttpClientTest extends Init{
+
+
+    @Test(dataProvider = "cases",priority = 1)
+    public void testInterFace(Case caseInfo) {
+        Response response = post(caseInfo.getUrl(),caseInfo.getParams());
+        response.setCaseInfo(caseInfo);
+        System.err.println("返回数据：" + response.getBody() + "\n预期结果：" + caseInfo.getResponseCheck());
+        if (Check.contrastMap(response.getBody(),caseInfo.getResponseCheck())) {
+            if (caseInfo.getStatusCode().equals(String.valueOf(response.getStatusCode()))) {
+                response.setTestResult(true);
+            } else new CheckException("返回状态码对比失败，预期状态码：" + caseInfo.getStatusCode() + "，实际返回状态码：" + response.getStatusCode() );
+        } else {
+            new CheckException("返回信息对比失败");
         }
-        System.out.println(httpResponse.getStatusLine());
-        HttpEntity entity1 = httpResponse.getEntity();
-        System.out.println(entity1);
-        Header[] headers = httpResponse.getAllHeaders();
-        for (int i =0;i<headers.length;i++) {
-            System.out.println(headers[i]);
+        testResult.put(caseInfo.getId(),response);
+    }
+
+    @Test(priority = 2)
+    public void getTestResultCount() {
+        System.out.println("测试结果数量："+ testResult.size());
+        for (Object id:testResult.keySet()) {
+            System.out.println("测试用例ID：" + id + "的测试结果是：" + testResult.get(id).getTestResult());
         }
+    }
+
+
+    @DataProvider(name = "cases")
+    @BeforeClass
+    public Iterator<Object[]> getCases() {
+        super.testResult = new HashMap<>();
+        ExcelUtil excelUtil = new ExcelUtil();
+        List<Case> item = excelUtil.readExcelGetCase("D:\\workspace\\接口测试用例模板.xlsx");
+        List<Object[]> cases = new ArrayList<Object[]>();
+        for (Object caseInfo : item) {
+            //做一个形式转换
+            cases.add(new Object[] { caseInfo });
+        }
+
+        return cases.iterator();
     }
 }

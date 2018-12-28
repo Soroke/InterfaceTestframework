@@ -20,9 +20,11 @@ public class Case {
     private String requestType;
     @JSONField(name = "params",ordinal = 5)
     private Map<Object,Object> params;
-    @JSONField(name = "responseCheck",ordinal = 6)
+    @JSONField(name = "statusCode",ordinal = 6)
+    private String statusCode;
+    @JSONField(name = "responseCheck",ordinal = 7)
     private Map<Object,Object> responseCheck;
-    @JSONField(name = "dbcheck",ordinal = 7)
+    @JSONField(name = "dbcheck",ordinal = 8)
     private List<DBCheck> dbChecks;
 
     public long getId() {
@@ -78,6 +80,14 @@ public class Case {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode;
     }
 
     @Override

@@ -6,10 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="InterfaceTest-framework" />
         <module name="InterfaceTestframework" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="InterfaceTest-framework" target="1.8" />
       <module name="InterfaceTestframework" target="1.8" />
     </bytecodeTargetLevel>
   </component>
