@@ -1,5 +1,7 @@
 package net.faxuan.interfaceTest.core;
 
+import net.faxuan.interfaceTest.exception.CheckException;
+import net.faxuan.interfaceTest.util.Check;
 import net.faxuan.objectInfo.caseObject.Case;
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
@@ -58,6 +60,30 @@ public class Http {
     private static RequestConfig config = RequestConfig.custom().setSocketTimeout(timeOut * 1000).setConnectTimeout(timeOut * 1000).setConnectionRequestTimeout(timeOut * 1000).build();
 
 
+    public static Response sendRequest(Case caseInfo) {
+        Response response = null;
+        if (caseInfo.getRequestType().equals("post") || caseInfo.getRequestType().equals("POST")) {
+            response = post(caseInfo.getUrl(),caseInfo.getParams());
+            response.setCaseInfo(caseInfo);
+        } else if (caseInfo.getRequestType().equals("get") || caseInfo.getRequestType().equals("GET")) {
+            //待扩展
+        }
+
+
+        /**
+         * 接口返回数据对比
+         */
+        if (Check.contrastMap(response.getBody(),caseInfo.getResponseCheck())) {
+            System.out.println("状态码对比结果：" + caseInfo.getStatusCode().equals(String.valueOf(response.getStatusCode())));
+            if (caseInfo.getStatusCode().equals(String.valueOf(response.getStatusCode()))) {
+                response.setTestResult(true);
+            } else throw new CheckException("用例id:" + caseInfo.getId() + "预期状态码：" + caseInfo.getStatusCode() + "，实际返回状态码：" + response.getStatusCode() );
+        } else {
+            throw new CheckException("返回信息对比失败");
+        }
+        log.info(response);
+        return response;
+    }
 
     /**
      * 发送post请求
@@ -118,12 +144,12 @@ public class Http {
             } catch(IOException ioe) {
                 log.error("post请求发送时出错");
                 rsp.setTestResult(false);
-                ioe.printStackTrace();
+//                ioe.printStackTrace();
                 return rsp;
             }catch (NullPointerException npe) {
                 log.error("没有设置URL参数！");
                 rsp.setTestResult(false);
-                npe.printStackTrace();
+//                npe.printStackTrace();
                 return rsp;
             }
             log.info("接口响应时间为：" + runTime + "ms");
@@ -136,7 +162,7 @@ public class Http {
                 }
                 count ++;
                 if (count == 3) {
-                    log.error("接口:" + url + "请求返回结果为失败；已重试3次，接口测试失败。");
+                    throw new CheckException("接口:" + url + "请求返回结果为失败；已重试3次，接口测试失败。");
                 } else {
                     log.error("接口:" + url + "请求返回结果为失败；开始第" + count + "次重试");
                 }
@@ -154,10 +180,8 @@ public class Http {
         }
         rsp.setHeaders(hashMap);
         rsp.setStatusCode(response.getStatusLine().getStatusCode());
-        log.info(rsp);
+//        log.info(rsp);
         return rsp;
     }
-
-
 
 }

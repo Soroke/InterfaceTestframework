@@ -5,12 +5,13 @@ import net.faxuan.interfaceTest.exception.CheckException;
 import net.faxuan.interfaceTest.util.Check;
 import net.faxuan.interfaceTest.util.ExcelUtil;
 import net.faxuan.objectInfo.caseObject.Case;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.*;
-import static net.faxuan.interfaceTest.core.Http.post;
+import static net.faxuan.interfaceTest.core.Http.sendRequest;
 
 /**
  * Created by song on 2018/12/25.
@@ -20,17 +21,22 @@ public class HttpClientTest extends Init{
 
     @Test(dataProvider = "cases",priority = 1)
     public void testInterFace(Case caseInfo) {
-        Response response = post(caseInfo.getUrl(),caseInfo.getParams());
-        response.setCaseInfo(caseInfo);
-        System.err.println("返回数据：" + response.getBody() + "\n预期结果：" + caseInfo.getResponseCheck());
-        if (Check.contrastMap(response.getBody(),caseInfo.getResponseCheck())) {
-            if (caseInfo.getStatusCode().equals(String.valueOf(response.getStatusCode()))) {
-                response.setTestResult(true);
-            } else new CheckException("返回状态码对比失败，预期状态码：" + caseInfo.getStatusCode() + "，实际返回状态码：" + response.getStatusCode() );
-        } else {
-            new CheckException("返回信息对比失败");
+        Response response = null;
+        try {
+            response = sendRequest(caseInfo);
+            testResult.put(caseInfo.getId(),response);
+        } catch (Exception e) {
+            response = new Response();
+            response.setCaseInfo(caseInfo);
+            response.setTestResult(false);
+            testResult.put(caseInfo.getId(),response);
+            throw new CheckException(e.getLocalizedMessage());
         }
-        testResult.put(caseInfo.getId(),response);
+
+        Assert.assertEquals(response.getTestResult(),true);
+
+//         Response response = sendRequest(caseInfo);
+//         testResult.put(caseInfo.getId(),response);
     }
 
     @Test(priority = 2)
@@ -53,7 +59,6 @@ public class HttpClientTest extends Init{
             //做一个形式转换
             cases.add(new Object[] { caseInfo });
         }
-
         return cases.iterator();
     }
 }

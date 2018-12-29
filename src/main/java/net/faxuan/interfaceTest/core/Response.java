@@ -1,6 +1,8 @@
 package net.faxuan.interfaceTest.core;
 
 import com.alibaba.fastjson.JSON;
+import net.faxuan.interfaceTest.exception.CheckException;
+import net.faxuan.interfaceTest.util.Check;
 import net.faxuan.interfaceTest.util.JsonHelper;
 import net.faxuan.objectInfo.caseObject.Case;
 import org.apache.http.client.CookieStore;
@@ -39,6 +41,11 @@ public class Response {
      * 测试结果
      */
     private boolean testResult;
+
+    /**
+     * 失败原因
+     */
+    private String failures;
 
     /**
      * log4j打log
@@ -100,6 +107,14 @@ public class Response {
 
     public void setTestResult(boolean testResult) {
         this.testResult = testResult;
+    }
+
+    public String getFailures() {
+        return failures;
+    }
+
+    public void setFailures(String failures) {
+        this.failures = failures;
     }
 
     @Override

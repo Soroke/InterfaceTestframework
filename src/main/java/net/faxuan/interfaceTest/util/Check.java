@@ -1,9 +1,11 @@
 package net.faxuan.interfaceTest.util;
 
+import net.faxuan.interfaceTest.exception.CheckException;
+import org.apache.log4j.Logger;
+
 import java.util.Map;
 
 public class Check {
-
 
     /**
      * 数据对比
@@ -67,6 +69,7 @@ public class Check {
      * @return
      */
     public static boolean contrastMap(Map<Object,Object> baseData,Map<Object,Object> contrastData) {
+        String info = "";
         //首先检查基础数据中是否包含全部的对比数据的key
         for (Object key1:contrastData.keySet()) {
             boolean isInstanceof = false;
@@ -75,12 +78,14 @@ public class Check {
                     isInstanceof = true;
                 }
             }
-            if (!isInstanceof) return false;
+            if (!isInstanceof) {
+                throw new CheckException("接口返回检查参数：" + key1 + "=" + contrastData.get(key1) + ",在接口返回数据中不存在");
+            }
         }
 
         for (Object key:contrastData.keySet()) {
             if (!(baseData.get(key).toString().equals(contrastData.get(key).toString()))){
-                return false;
+                throw new CheckException("接口返回检查参数：" + key + "=" + contrastData.get(key) + ",和实际接口返回：" + key + "=" + baseData.get(key) + "中的值对比结果不一致");
             }
         }
         return true;
