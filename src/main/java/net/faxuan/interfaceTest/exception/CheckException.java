@@ -3,7 +3,7 @@ package net.faxuan.interfaceTest.exception;
 import org.apache.log4j.Logger;
 
 /**
- * Created by song on 2017/8/8.
+ * Created by song on 2018/12/26.
  */
 public class CheckException extends RuntimeException {
 
