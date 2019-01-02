@@ -152,9 +152,10 @@ public class ExcelUtil {
             host = getCellStringValue(row.getCell(0));
             systemProper.put("systemhost",host);
             systemProper.put("mysqlhost",getCellStringValue(row.getCell(1)));
-            systemProper.put("mysqlport",getCellStringValue(row.getCell(2)));
-            systemProper.put("mysqluser",getCellStringValue(row.getCell(3)));
-            systemProper.put("mysqlpassword",getCellStringValue(row.getCell(4)));
+            systemProper.put("dbName",getCellStringValue(row.getCell(2)));
+            systemProper.put("mysqlport",getCellStringValue(row.getCell(3)));
+            systemProper.put("mysqluser",getCellStringValue(row.getCell(4)));
+            systemProper.put("mysqlpassword",getCellStringValue(row.getCell(5)));
             new FileUtil().createPropertiesFile("system.properties",systemProper);
         } catch (FileNotFoundException e) {
             e.printStackTrace();

@@ -3,6 +3,7 @@ package net.faxuan.interfaceTest.core;
 import net.faxuan.interfaceTest.exception.CheckException;
 import net.faxuan.interfaceTest.util.Check;
 import net.faxuan.objectInfo.caseObject.Case;
+import net.faxuan.objectInfo.excel.DBCheck;
 import org.apache.http.*;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
@@ -14,6 +15,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.*;
@@ -53,28 +56,26 @@ public class Http {
     private static RequestConfig config = RequestConfig.custom().setSocketTimeout(timeOut * 1000).setConnectTimeout(timeOut * 1000).setConnectionRequestTimeout(timeOut * 1000).build();
 
 
+    /**
+     * 发送http请求
+     * @param caseInfo 用例信息
+     * @return
+     */
     public static Response sendRequest(Case caseInfo) {
         Response response = null;
         if (caseInfo.getRequestType().equals("post") || caseInfo.getRequestType().equals("POST")) {
             response = post(caseInfo.getUrl(),caseInfo.getParams());
             response.setCaseInfo(caseInfo);
+
         } else if (caseInfo.getRequestType().equals("get") || caseInfo.getRequestType().equals("GET")) {
             //待扩展
-        }
-
-
-        /**
-         * 接口返回数据对比
-         */
-        if (Check.contrastMap(response.getBody(),caseInfo.getResponseCheck())) {
-//            System.out.println("状态码对比结果：" + caseInfo.getStatusCode().equals(String.valueOf(response.getStatusCode())));
-            if (caseInfo.getStatusCode().equals(String.valueOf(response.getStatusCode()))) {
-                response.setTestResult(true);
-            } else throw new CheckException("用例id:" + caseInfo.getId() + "预期状态码：" + caseInfo.getStatusCode() + "，实际返回状态码：" + response.getStatusCode() );
         } else {
-            throw new CheckException("返回信息对比失败");
+            return null;
         }
-        log.info(response);
+
+        //替换数据库检查中的关键字
+        Assert.assertEquals(replaceResult(response),true);
+
         return response;
     }
 
@@ -175,6 +176,41 @@ public class Http {
         rsp.setStatusCode(response.getStatusLine().getStatusCode());
 //        log.info(rsp);
         return rsp;
+    }
+
+    /**
+     * 替换用例的数据库检查点中的关键字标识字段
+     * @param response
+     * @return
+     */
+    public static boolean replaceResult(Response response) {
+        List<DBCheck> dbChecks = response.getCaseInfo().getDbChecks();
+        for (DBCheck dbCheck:dbChecks) {
+            //获取请求用例数据库检查中的检查点并替换其中需要替换的值
+            Map<Object,Object> checks = dbCheck.getCheckPoint();
+            Map<Object,Object> newChecks = new HashMap<>();
+            for (Object key:checks.keySet()) {
+                String value = checks.get(key).toString();
+                if (value.contains("RESPONSE[") && value.contains("]")) {
+                    String[] value1 = value.split("\\[");
+                    String[] value2 = value1[1].split("]");
+                    newChecks.put(key,response.getBody().get(value2[0]));
+                } else {
+                    newChecks.put(key,checks.get(key));
+                }
+            }
+            dbCheck.setCheckPoint(newChecks);
+
+            //获取请求用例数据库检查中的sql并替换其中需要替换的值
+            String sql = dbCheck.getSql();
+            if (sql.contains("RESPONSE[") && sql.contains("]")) {
+                String[] value1 = sql.split("\\[");
+                String[] value2 = value1[1].split("]");
+                sql = sql.replaceAll("RESPONSE\\[" + value2[0] + "]","'" + response.getBody().get(value2[0]).toString() + "'");
+            }
+            dbCheck.setSql(sql);
+        }
+        return true;
     }
 
 }

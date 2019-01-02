@@ -57,6 +57,10 @@ public class DBCheck {
         this.checkPoint = checkPoints;
     }
 
+    public void setCheckPoint(Map<Object,Object> checkPoint) {
+        this.checkPoint = checkPoint;
+    }
+
     public boolean isResultIsNull() {
         return resultIsNull;
     }

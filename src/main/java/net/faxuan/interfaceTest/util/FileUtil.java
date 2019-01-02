@@ -24,9 +24,10 @@ public class FileUtil {
                 file.createNewFile();
             }
             FileWriter fileWriter = new FileWriter(file,false);
-            for (Object key:fileContent.keySet()) {
-                fileWriter.write(key + "=" + fileContent.get(key) + "\n");
-            }
+            fileWriter.write("systemhost=" + fileContent.get("systemhost") + "\n");
+            fileWriter.write("url=jdbc:mysql://" + fileContent.get("mysqlhost") + ":" + fileContent.get("mysqlport") + "/" + fileContent.get("dbName") + "?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&maxReconnects=10\n");
+            fileWriter.write("username=" + fileContent.get("mysqluser") + "\n");
+            fileWriter.write("userpassword=" + fileContent.get("mysqlpassword"));
             fileWriter.close();
         } catch (IOException e) {
             e.printStackTrace();

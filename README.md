@@ -1,4 +1,10 @@
 ## InterfaceTestframework
+# 使用说明
+#### 1、根据excel中的提示信息添加接口和用例的信息
+#### 2、excel编写完成后将其放在当前项目所在目录下
+#### 3、执行maven命令 mvn clean install 进行测试
+#### 4、执行完成后使用allure生成测试报告,项目集成到jenkins请参考[这里](https://docs.qameta.io/allure/2.0/#_jenkins)
+# 版本支持信息
 ### 1、	接口执行类型</br>
 支持接口类型为**post、get**(get延期)</br>
 ### 2、	前置条件</br>

@@ -1,7 +1,6 @@
 package net.faxuan.interfaceTest.util;
 
 import net.faxuan.interfaceTest.exception.CheckException;
-import org.apache.log4j.Logger;
 
 import java.util.Map;
 
