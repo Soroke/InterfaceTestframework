@@ -4,23 +4,16 @@ import net.faxuan.interfaceTest.exception.CheckException;
 import net.faxuan.interfaceTest.util.Check;
 import net.faxuan.objectInfo.caseObject.Case;
 import org.apache.http.*;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
-import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.*;
@@ -51,7 +44,7 @@ public class Http {
      * 请求超时设置时长
      * 单位秒
      */
-    private static int timeOut = 10;
+    private static int timeOut = 5;
 
     /**
      * 构造httprequest设置
@@ -74,7 +67,7 @@ public class Http {
          * 接口返回数据对比
          */
         if (Check.contrastMap(response.getBody(),caseInfo.getResponseCheck())) {
-            System.out.println("状态码对比结果：" + caseInfo.getStatusCode().equals(String.valueOf(response.getStatusCode())));
+//            System.out.println("状态码对比结果：" + caseInfo.getStatusCode().equals(String.valueOf(response.getStatusCode())));
             if (caseInfo.getStatusCode().equals(String.valueOf(response.getStatusCode()))) {
                 response.setTestResult(true);
             } else throw new CheckException("用例id:" + caseInfo.getId() + "预期状态码：" + caseInfo.getStatusCode() + "，实际返回状态码：" + response.getStatusCode() );

@@ -79,13 +79,13 @@ public class Check {
                 }
             }
             if (!isInstanceof) {
-                throw new CheckException("接口返回检查参数：" + key1 + "=" + contrastData.get(key1) + ",在接口返回数据中不存在");
+                throw new CheckException("接口返回检查参数：\"" + key1 + "=" + contrastData.get(key1) + "\",在接口返回数据中不存在");
             }
         }
 
         for (Object key:contrastData.keySet()) {
             if (!(baseData.get(key).toString().equals(contrastData.get(key).toString()))){
-                throw new CheckException("接口返回检查参数：" + key + "=" + contrastData.get(key) + ",和实际接口返回：" + key + "=" + baseData.get(key) + "中的值对比结果不一致");
+                throw new CheckException("接口返回检查参数：\"" + key + "=" + contrastData.get(key) + "\",和实际接口返回：\"" + key + "=" + baseData.get(key) + "\"中的值对比结果不一致");
             }
         }
         return true;

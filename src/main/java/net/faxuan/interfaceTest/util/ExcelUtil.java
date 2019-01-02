@@ -1,6 +1,5 @@
 package net.faxuan.interfaceTest.util;
 
-import com.alibaba.fastjson.JSON;
 import net.faxuan.interfaceTest.exception.CheckException;
 import net.faxuan.objectInfo.caseObject.Case;
 import net.faxuan.objectInfo.excel.CaseCheck;
@@ -11,10 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;

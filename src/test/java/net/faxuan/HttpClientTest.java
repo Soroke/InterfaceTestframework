@@ -2,7 +2,6 @@ package net.faxuan;
 
 import net.faxuan.interfaceTest.core.Response;
 import net.faxuan.interfaceTest.exception.CheckException;
-import net.faxuan.interfaceTest.util.Check;
 import net.faxuan.interfaceTest.util.ExcelUtil;
 import net.faxuan.objectInfo.caseObject.Case;
 import org.testng.Assert;
@@ -53,12 +52,27 @@ public class HttpClientTest extends Init{
     public Iterator<Object[]> getCases() {
         super.testResult = new HashMap<>();
         ExcelUtil excelUtil = new ExcelUtil();
-        List<Case> item = excelUtil.readExcelGetCase("D:\\workspace\\接口测试用例模板.xlsx");
+//        List<Case> item = excelUtil.readExcelGetCase(getExcelPath() + "/接口测试用例模板.xlsx");
+        List<Case> item = excelUtil.readExcelGetCase(getExcelPath() + "/接口测试用例模板.xlsx");
         List<Object[]> cases = new ArrayList<Object[]>();
         for (Object caseInfo : item) {
             //做一个形式转换
             cases.add(new Object[] { caseInfo });
         }
         return cases.iterator();
+    }
+
+    /**
+     * 获取当前目录
+     * @return
+     */
+    public String getExcelPath() {
+        String path = System.getProperty("user.dir");
+
+        if (path.contains("target")) {
+            path = path.replaceAll("target","");
+            path = path.replaceAll("target","");
+        }
+        return path;
     }
 }
