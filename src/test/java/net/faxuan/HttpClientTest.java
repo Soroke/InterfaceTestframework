@@ -89,10 +89,8 @@ public class HttpClientTest extends Init{
      */
     private boolean responseCheck(Response response) {
         log.info("对比检查点数据和接口返回中是否一致");
-        for (Map<Object,Object> responseBody:response.getBody()) {
-            if (!Check.contrastMap(responseBody,response.getCaseInfo().getResponseCheck())) {
-                throw new CheckException("返回信息对比失败");
-            }
+        if (!Check.contrastMap(response.getBody(),response.getCaseInfo().getResponseCheck())) {
+            throw new CheckException("返回信息对比失败");
         }
         return true;
     }
@@ -103,6 +101,7 @@ public class HttpClientTest extends Init{
      * @return
      */
     public boolean databaseCheck(Response response) {
+        if (response.getCaseInfo().getDbChecks().isEmpty()) return true;
         log.info("对比数据库检查点和SQL查询结果是否一致");
         Properties properties = new Properties();
         try {

@@ -3,6 +3,8 @@ package net.faxuan.interfaceTest.util;
 import net.faxuan.interfaceTest.exception.CheckException;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class Check {
@@ -71,27 +73,41 @@ public class Check {
      * @param contrastData 对比map
      * @return
      */
-    public static boolean contrastMap(Map<Object,Object> baseData,Map<Object,Object> contrastData) {
-        String info = "";
+    public static boolean contrastMap(List<Map<Object, Object>> baseData, Map<Object,Object> contrastData) {
         //首先检查基础数据中是否包含全部的对比数据的key
+        boolean isInstanceof = false;
         for (Object key1:contrastData.keySet()) {
-            boolean isInstanceof = false;
-            for (Object key2:baseData.keySet()) {
-                if (key2.toString().equals(key1.toString())) {
-                    isInstanceof = true;
-
+            for (Map<Object, Object> data:baseData) {
+                for (Object key2:data.keySet()) {
+                    if (key2.toString().equals(key1.toString())) {
+                        isInstanceof = true;
+                    }
                 }
             }
             if (!isInstanceof) {
                 throw new CheckException("接口返回检查参数：\"" + key1 + "=" + contrastData.get(key1) + "\",在接口返回数据中不存在");
             }
         }
+        //参数对比
         for (Object key:contrastData.keySet()) {
-
-            if (!(baseData.get(key).toString().equals(contrastData.get(key).toString()))){
-                throw new CheckException("接口返回检查参数：\"" + key + "=" + contrastData.get(key) + "\",和实际接口返回：\"" + key + "=" + baseData.get(key) + "\"中的值对比结果不一致");
+            List<String> values = new ArrayList<>();
+            for (Map<Object, Object> data:baseData) {
+                for (Object key1:data.keySet()) {
+                    if (key1.toString().equals(key.toString())) {
+                        values.add(data.get(key1).toString());
+                    }
+                }
             }
-            log.info("参数：\"" + key + "\"的预期结果为：'" + contrastData.get(key) + "',接口返回的值为：'" + baseData.get(key) + "',对比结果一致");
+            boolean isEquals = false;
+            for (String value:values) {
+                if (value.equals(contrastData.get(key).toString())) {
+                    log.info("参数：\"" + key + "\"的预期结果为：'" + contrastData.get(key) + "',接口返回的值为：'" + value + "',对比结果一致");
+                    isEquals=true;
+                }
+            }
+            if (!isEquals){
+                throw new CheckException("接口返回检查参数：\"" + key + "=" + contrastData.get(key) + "\",和实际接口返回中的值对比结果不一致");
+            }
         }
         log.info("接口返回值和预期结果对比一致；返回值校验结束");
         return true;
