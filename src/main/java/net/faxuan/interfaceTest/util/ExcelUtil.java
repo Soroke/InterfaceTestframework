@@ -90,8 +90,8 @@ public class ExcelUtil {
                 XSSFCell contactIdCell = row.getCell(2); // 关联接口ID
                 XSSFCell preconditionCell = row.getCell(3); // 前置条件
                 XSSFCell caseParamsCell = row.getCell(4); // 参数值
-                XSSFCell statusCodeCell = row.getCell(5); // 状态码
-                XSSFCell responseCheckCell = row.getCell(6); // 返回校验
+//                XSSFCell statusCodeCell = row.getCell(5); // 状态码
+                XSSFCell responseCheckCell = row.getCell(5); // 返回校验
 
                 /**
                  * 检查获取数据是否为空
@@ -106,7 +106,7 @@ public class ExcelUtil {
                 caseCheck.setContactId(Long.valueOf(getCellStringValue(contactIdCell)));
 //                caseCheck.setPrecondition(preconditionCell.getStringCellValue());
                 caseCheck.setParams(getCellStringValue(caseParamsCell));
-                caseCheck.setStatusCode(getCellStringValue(statusCodeCell));
+//                caseCheck.setStatusCode(getCellStringValue(statusCodeCell));
                 caseCheck.setResponseCheck(getCellStringValue(responseCheckCell));
                 caseChecks.add(caseCheck);
 
@@ -188,7 +188,7 @@ public class ExcelUtil {
             caseInfo.setId(caseCheck.getId());
             caseInfo.setName(caseCheck.getCaseName());
             caseInfo.setResponseCheck(caseCheck.getResponseCheck());
-            caseInfo.setStatusCode(caseCheck.getStatusCode());
+//            caseInfo.setStatusCode(caseCheck.getStatusCode());
             for (InterfaceInfo interfaceInfo:interfaceInfos) {
                 if (interfaceInfo.getId() == caseCheck.getContactId()) {
                     Map<Object,Object> params = new HashMap<>();

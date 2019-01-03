@@ -1,11 +1,15 @@
 package net.faxuan.interfaceTest.util;
 
 import net.faxuan.interfaceTest.exception.CheckException;
+import org.apache.log4j.Logger;
 
 import java.util.Map;
 
 public class Check {
-
+    /**
+     * log4j打log
+     */
+    private static Logger log = Logger.getLogger(Check.class);
     /**
      * 数据对比
      * @param value1
@@ -75,18 +79,21 @@ public class Check {
             for (Object key2:baseData.keySet()) {
                 if (key2.toString().equals(key1.toString())) {
                     isInstanceof = true;
+
                 }
             }
             if (!isInstanceof) {
                 throw new CheckException("接口返回检查参数：\"" + key1 + "=" + contrastData.get(key1) + "\",在接口返回数据中不存在");
             }
         }
-
         for (Object key:contrastData.keySet()) {
+
             if (!(baseData.get(key).toString().equals(contrastData.get(key).toString()))){
                 throw new CheckException("接口返回检查参数：\"" + key + "=" + contrastData.get(key) + "\",和实际接口返回：\"" + key + "=" + baseData.get(key) + "\"中的值对比结果不一致");
             }
+            log.info("参数：\"" + key + "\"的预期结果为：'" + contrastData.get(key) + "',接口返回的值为：'" + baseData.get(key) + "',对比结果一致");
         }
+        log.info("接口返回值和预期结果对比一致；返回值校验结束");
         return true;
     }
 }

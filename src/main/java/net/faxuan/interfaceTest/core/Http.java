@@ -1,7 +1,6 @@
 package net.faxuan.interfaceTest.core;
 
 import net.faxuan.interfaceTest.exception.CheckException;
-import net.faxuan.interfaceTest.util.Check;
 import net.faxuan.objectInfo.caseObject.Case;
 import net.faxuan.objectInfo.excel.DBCheck;
 import org.apache.http.*;
@@ -16,7 +15,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.*;
@@ -74,7 +72,9 @@ public class Http {
         }
 
         //替换数据库检查中的关键字
-        Assert.assertEquals(replaceResult(response),true);
+        if (response.getCaseInfo().getDbChecks().size() >= 1) {
+            Assert.assertEquals(replaceResult(response),true);
+        }
 
         return response;
     }
@@ -194,7 +194,12 @@ public class Http {
                 if (value.contains("RESPONSE[") && value.contains("]")) {
                     String[] value1 = value.split("\\[");
                     String[] value2 = value1[1].split("]");
-                    newChecks.put(key,response.getBody().get(value2[0]));
+                    try {
+                        newChecks.put(key,response.getBody().get(value2[0]));
+                    } catch (NullPointerException e) {
+                        throw new CheckException("用例\"ID：" + response.getCaseInfo().getId() + "--" + response.getCaseInfo().getName() + "\"中数据库检查点需要替换的返回值参数：‘" +value2[0] + "’在接口返回中不存在无法替换" );
+
+                    }
                 } else {
                     newChecks.put(key,checks.get(key));
                 }
@@ -206,7 +211,12 @@ public class Http {
             if (sql.contains("RESPONSE[") && sql.contains("]")) {
                 String[] value1 = sql.split("\\[");
                 String[] value2 = value1[1].split("]");
-                sql = sql.replaceAll("RESPONSE\\[" + value2[0] + "]","'" + response.getBody().get(value2[0]).toString() + "'");
+                try {
+                    sql = sql.replaceAll("RESPONSE\\[" + value2[0] + "]","'" + response.getBody().get(value2[0]).toString() + "'");
+                } catch (NullPointerException e) {
+                    throw new CheckException("用例\"ID：" + response.getCaseInfo().getId() + "--" + response.getCaseInfo().getName() + "\"中数据库检查sql需要替换的返回值参数：‘" +value2[0] + "’在接口返回中不存在无法替换" );
+                }
+
             }
             dbCheck.setSql(sql);
         }
