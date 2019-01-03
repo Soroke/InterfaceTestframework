@@ -195,7 +195,7 @@ public class Http {
                     String[] value1 = value.split("\\[");
                     String[] value2 = value1[1].split("]");
                     try {
-                        newChecks.put(key,response.getBody().get(value2[0]));
+                        newChecks.put(key,getResponseValue(response.getBody(),value2[0]));
                     } catch (NullPointerException e) {
                         throw new CheckException("用例\"ID：" + response.getCaseInfo().getId() + "--" + response.getCaseInfo().getName() + "\"中数据库检查点需要替换的返回值参数：‘" +value2[0] + "’在接口返回中不存在无法替换" );
 
@@ -212,7 +212,7 @@ public class Http {
                 String[] value1 = sql.split("\\[");
                 String[] value2 = value1[1].split("]");
                 try {
-                    sql = sql.replaceAll("RESPONSE\\[" + value2[0] + "]","'" + response.getBody().get(value2[0]).toString() + "'");
+                    sql = sql.replaceAll("RESPONSE\\[" + value2[0] + "]","'" + getResponseValue(response.getBody(),value2[0]) + "'");
                 } catch (NullPointerException e) {
                     throw new CheckException("用例\"ID：" + response.getCaseInfo().getId() + "--" + response.getCaseInfo().getName() + "\"中数据库检查sql需要替换的返回值参数：‘" +value2[0] + "’在接口返回中不存在无法替换" );
                 }
@@ -221,6 +221,28 @@ public class Http {
             dbCheck.setSql(sql);
         }
         return true;
+    }
+
+    /**
+     * 获取接口返回信息List<Map<Object,Object>>中指定key的值
+     * @param responseBody 数据源
+     * @param key   key的值
+     * @return 返回key对应的值
+     */
+    private static String getResponseValue(List<Map<Object,Object>> responseBody,String key) {
+        List<String> values = new ArrayList<>();
+        for (Map<Object,Object> body:responseBody) {
+            for (Object key1:body.keySet()) {
+                if (key1.toString().equals(key)) {
+                    values.add(body.get(key1).toString());
+                }
+            }
+        }
+        if (values.size() == 1) {
+            return values.get(0);
+        }else {
+            throw new CheckException("接口返回信息中不存在或存在多个：‘" +key + "’对应的值" );
+        }
     }
 
 }

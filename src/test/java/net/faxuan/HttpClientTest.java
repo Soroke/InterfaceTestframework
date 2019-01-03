@@ -64,6 +64,7 @@ public class HttpClientTest extends Init{
             response = new Response();
             response.setCaseInfo(caseInfo);
             response.setTestResult(false);
+            response.setFailures(e.getMessage());
             testResult.put(caseInfo.getId(),response);
             log.info("=================================用例ID" + caseInfo.getId() + "_END=================================");
             throw new CheckException(e.getMessage());
@@ -88,8 +89,10 @@ public class HttpClientTest extends Init{
      */
     private boolean responseCheck(Response response) {
         log.info("对比检查点数据和接口返回中是否一致");
-        if (!Check.contrastMap(response.getBody(),response.getCaseInfo().getResponseCheck())) {
-            throw new CheckException("返回信息对比失败");
+        for (Map<Object,Object> responseBody:response.getBody()) {
+            if (!Check.contrastMap(responseBody,response.getCaseInfo().getResponseCheck())) {
+                throw new CheckException("返回信息对比失败");
+            }
         }
         return true;
     }

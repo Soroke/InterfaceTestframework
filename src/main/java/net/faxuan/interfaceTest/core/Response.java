@@ -8,6 +8,7 @@ import net.faxuan.objectInfo.caseObject.Case;
 import org.apache.http.client.CookieStore;
 import org.apache.log4j.Logger;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,7 +28,7 @@ public class Response {
     /**
      * 返回结果
      */
-    private Map<Object,Object> body;
+    private List<Map<Object,Object>> body;
     /**
      * 运行时间
      */
@@ -77,12 +78,12 @@ public class Response {
         this.cookies = cookies;
     }
 
-    public Map<Object,Object> getBody() {
+    public List<Map<Object,Object>> getBody() {
         return body;
     }
 
     public void setBody(String body) {
-        this.body = JsonHelper.convertJsonToMap(body);
+        this.body = JsonHelper.convertJsonToListMap(body);
     }
 
     public Long getRunTime() {
