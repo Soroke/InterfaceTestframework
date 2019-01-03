@@ -75,13 +75,17 @@ public class HttpClientTest extends Init{
 
     }
 
-    @Test(priority = 2)
-    public void getTestResultCount() {
-        System.out.println("测试结果数量："+ testResult.size());
-        for (Object id:testResult.keySet()) {
-            System.out.println("测试用例ID：" + id + "的测试结果是：" + testResult.get(id).getTestResult());
-        }
-    }
+//    @Test(priority = 2)
+//    public void getTestResultCount() {
+//        System.out.println("测试结果数量："+ testResult.size());
+//        for (Object id:testResult.keySet()) {
+//            if (!testResult.get(id).getTestResult()) {
+//                System.out.println("测试用例ID：" + id + "的测试结果是：" + testResult.get(id).getTestResult() + "；失败原因为：" + testResult.get(id).getFailures());
+//            }else {
+//                System.out.println("测试用例ID：" + id + "的测试结果是：" + testResult.get(id).getTestResult());
+//            }
+//        }
+//    }
 
     /**
      * 对比接口返回数据

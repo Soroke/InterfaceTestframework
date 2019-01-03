@@ -240,8 +240,10 @@ public class Http {
         }
         if (values.size() == 1) {
             return values.get(0);
+        }else if (values.size() > 1) {
+            throw new CheckException("接口返回信息中存在多个：‘" +key + "’对应的值;无法确认需要替换哪个值" );
         }else {
-            throw new CheckException("接口返回信息中不存在或存在多个：‘" +key + "’对应的值" );
+            throw new CheckException("接口返回信息中不存在：‘" +key + "’对应的值;无法进行返回信息的替换" );
         }
     }
 
