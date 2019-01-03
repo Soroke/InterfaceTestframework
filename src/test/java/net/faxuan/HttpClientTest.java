@@ -31,6 +31,7 @@ public class HttpClientTest extends Init{
 
     @Test(dataProvider = "cases",priority = 1)
     public void testInterFace(Case caseInfo) {
+        log.info("================================用例ID" + caseInfo.getId() + "_START================================");
         log.info("开始测试用例ID:" + caseInfo.getId() + ",名称："+ caseInfo.getName());
         /**
          * 请求接口，获取返回数据并检验返回结果
@@ -51,6 +52,7 @@ public class HttpClientTest extends Init{
             Assert.assertEquals(databaseCheck(response),true);
             //记录测试结果
             log.info("当前用例ID:" + caseInfo.getId() + "测试通过。");
+            log.info("=================================用例ID" + caseInfo.getId() + "_END=================================");
             response.setTestResult(true);
             //将测试信息存储在map中
             testResult.put(caseInfo.getId(),response);
@@ -63,6 +65,7 @@ public class HttpClientTest extends Init{
             response.setCaseInfo(caseInfo);
             response.setTestResult(false);
             testResult.put(caseInfo.getId(),response);
+            log.info("=================================用例ID" + caseInfo.getId() + "_END=================================");
             throw new CheckException(e.getMessage());
 //            throw new CheckException(e.getLocalizedMessage());
         }
