@@ -153,12 +153,15 @@ public class HttpClientTest extends Init{
             }
         }
         log.info("数据库检查点数据检查通过，校验结束");
-
         databaseUtil.deconnSQL();
         return true;
     }
 
 
+    /**
+     * 获取excel中所有测试用例的信息；并将其装载到测试方法中
+     * @return 用例的集合
+     */
     @DataProvider(name = "cases")
     @BeforeClass
     public Iterator<Object[]> getCases() {

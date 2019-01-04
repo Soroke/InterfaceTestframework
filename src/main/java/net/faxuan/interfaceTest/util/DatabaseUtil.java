@@ -47,8 +47,12 @@ public class DatabaseUtil {
      */
     public void deconnSQL() {
         try {
-            if (conn != null)
+            if (statement != null) {
+                statement.close();
+            }
+            if (conn != null){
                 conn.close();
+            }
         } catch (Exception e) {
             System.out.println("关闭数据库问题 ：");
             e.printStackTrace();
