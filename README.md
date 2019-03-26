@@ -17,6 +17,30 @@
 ### 4、	状态码检查</br>
 支持接口返回状态码检查</br>
 ### 5、	接口字段检查</br>
+#####   仅支持接口返回为标准json的校验</br>
+-----------
+如果接口返回json如下
+```Json
+{
+  "lotto":{
+    "lottoId":5,
+    "winning-numbers":[2,45,34,23,7,5,3],
+    "winners":[{
+        "winnerId":23,
+        "numbers":[2,45,34,23,3,5]
+        },{
+        "winnerId":54,
+        "numbers":[52,3,12,11,18,22]
+     }]
+  },
+  "id":1，
+  "name":"soroke"
+}
+```
+支持验证格式：
+```
+id=1&&name=soroke&&lotto.lottoId=5&&lotto.winning-numbers[3]=23
+```
 支持key=value检查使用key匹配接口返回获取值和value对比，可以为多个键值对；</br>
 key和value都是固定值</br>
 value可以是前置用例的返回值(延期)</br>
