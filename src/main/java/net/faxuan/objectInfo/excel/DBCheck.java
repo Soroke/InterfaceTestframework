@@ -45,14 +45,28 @@ public class DBCheck {
      */
     public void setCheckPoint(String checkPoint) {
         Map<Object,Object> checkPoints = new HashMap<Object,Object>();
-        String[] checks = checkPoint.split("&");
+        String[] checks = checkPoint.split("&&");
         for (String check:checks) {
-            String[] keyValue = check.split("=");
-            try {
-                checkPoints.put(keyValue[0],keyValue[1]);
-            } catch (ArrayIndexOutOfBoundsException e) {
-                checkPoints.put(keyValue[0],"");
+            if (check.contains("!=")) {
+                try {
+                    String key = check.substring(0,check.indexOf("!="));
+                    String value = check.substring(check.indexOf("!=") + 1);
+                    checkPoints.put(key,value);
+                } catch (StringIndexOutOfBoundsException e) {}
+            } else {
+                try {
+                    String key = check.substring(0,check.indexOf("="));
+                    String value = check.substring(check.indexOf("=") + 1);
+                    checkPoints.put(key,value);
+                } catch (StringIndexOutOfBoundsException e) {}
             }
+
+//            String[] keyValue = check.split("=");
+//            try {
+//                checkPoints.put(keyValue[0],keyValue[1]);
+//            } catch (ArrayIndexOutOfBoundsException e) {
+//                checkPoints.put(keyValue[0],"");
+//            }
         }
         this.checkPoint = checkPoints;
     }

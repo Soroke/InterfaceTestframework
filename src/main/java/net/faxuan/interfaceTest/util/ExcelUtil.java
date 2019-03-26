@@ -108,6 +108,7 @@ public class ExcelUtil {
                 caseCheck.setParams(getCellStringValue(caseParamsCell));
 //                caseCheck.setStatusCode(getCellStringValue(statusCodeCell));
                 caseCheck.setResponseCheck(getCellStringValue(responseCheckCell));
+                caseCheck.setFalseResponseCheck(getCellStringValue(responseCheckCell));
                 caseChecks.add(caseCheck);
 
             }
@@ -183,25 +184,29 @@ public class ExcelUtil {
      */
     private List<Case> getCaseInfo(List<InterfaceInfo> interfaceInfos,List<CaseCheck> caseChecks,List<DBCheck> dbChecks) {
         List<Case> caseList = new ArrayList<>();
-        for (CaseCheck caseCheck:caseChecks) {
+        loof:for (CaseCheck caseCheck:caseChecks) {
             Case caseInfo = new Case();
             caseInfo.setId(caseCheck.getId());
             caseInfo.setName(caseCheck.getCaseName());
             caseInfo.setResponseCheck(caseCheck.getResponseCheck());
+            caseInfo.setFalseResponseCheck(caseCheck.getFalseResponseCheck());
 //            caseInfo.setStatusCode(caseCheck.getStatusCode());
             for (InterfaceInfo interfaceInfo:interfaceInfos) {
                 if (interfaceInfo.getId() == caseCheck.getContactId()) {
                     Map<Object,Object> params = new HashMap<>();
                     caseInfo.setUrl(host + interfaceInfo.getUrl());
                     caseInfo.setRequestType(interfaceInfo.getRequestType());
-                    String [] paramNames = interfaceInfo.getParams().split("&");
-                    String[] paramValues = caseCheck.getParams().split("&");
+                    String [] paramNames = interfaceInfo.getParams().split("&&");
+                    String[] paramValues = caseCheck.getParams().split("&&");
                     if (paramNames.length == paramValues.length) {
                         for (int i=0;i<paramNames.length;i++) {
                             params.put(paramNames[i],paramValues[i]);
                         }
                     } else {
-                        throw new CheckException("用例ID：" +caseCheck.getId() + "中的参数配置数量和其关联接口的参数不一致");
+                        caseInfo.setIsNormalCase(false);
+                        caseList.add(caseInfo);
+                        continue loof;
+//                        throw new CheckException("用例ID：" +caseCheck.getId() + "中的参数配置数量和其关联接口的参数不一致");
                     }
                     caseInfo.setParams(params);
                     break;
@@ -210,7 +215,7 @@ public class ExcelUtil {
 
             List<DBCheck> dbCheckList = new ArrayList<>();
             for (DBCheck dbCheck:dbChecks) {
-                if (dbCheck.getContactId().contains(caseCheck.getId().toString())) {
+                if (dbCheck.getContactId().equals(caseCheck.getId().toString())) {
                     dbCheckList.add(dbCheck);
                 }
             }

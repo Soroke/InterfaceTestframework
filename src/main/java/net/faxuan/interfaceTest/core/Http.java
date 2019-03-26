@@ -1,6 +1,8 @@
 package net.faxuan.interfaceTest.core;
 
+import com.alibaba.fastjson.JSONException;
 import net.faxuan.interfaceTest.exception.CheckException;
+import net.faxuan.interfaceTest.util.JsonHelper;
 import net.faxuan.objectInfo.caseObject.Case;
 import net.faxuan.objectInfo.excel.DBCheck;
 import org.apache.http.*;
@@ -15,6 +17,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.*;
@@ -128,12 +131,14 @@ public class Http {
          * 接口测试不通过时，暂停1s继续请求；
          * 如果三次都不通过再判定测试失败
          */
+        String responseBodyInfo = "";
         while(count < 3 ) {
             //计算请求开始时间
             startTime = new Date().getTime();
             try {
                 response = httpClient.execute(httpPost);
-                rsp.setBody(EntityUtils.toString(response.getEntity(), encode));
+                responseBodyInfo = EntityUtils.toString(response.getEntity(), encode);
+                rsp.setBody(responseBodyInfo);
                 runTime = new Date().getTime() - startTime;
             } catch(IOException ioe) {
                 log.error("post请求发送时出错");
@@ -147,6 +152,7 @@ public class Http {
                 return rsp;
             }
             log.info("接口响应时间为：" + runTime + "ms");
+
             log.info("------------------------请求结束------------------------");
             if ( response.getStatusLine().getStatusCode() != 200 ) {
                 try {
@@ -164,6 +170,7 @@ public class Http {
                 count = 5;
             }
         }
+        log.info("接口响应内容为：" + responseBodyInfo);
         rsp.setRunTime(runTime);
         rsp.setCookies(cookieStore);
         //保存header
@@ -186,21 +193,31 @@ public class Http {
     public static boolean replaceResult(Response response) {
         List<DBCheck> dbChecks = response.getCaseInfo().getDbChecks();
         for (DBCheck dbCheck:dbChecks) {
-            //获取请求用例数据库检查中的检查点并替换其中需要替换的值
             Map<Object,Object> checks = dbCheck.getCheckPoint();
             Map<Object,Object> newChecks = new HashMap<>();
+            Map<Object,Object> params = response.getCaseInfo().getParams();
             for (Object key:checks.keySet()) {
                 String value = checks.get(key).toString();
-                if (value.contains("RESPONSE[") && value.contains("]")) {
-                    String[] value1 = value.split("\\[");
-                    String[] value2 = value1[1].split("]");
+                if (value.contains("RESPONSE[[") && value.contains("]]")) {
+                    //替换数据库检查点的中RESPONSE标识的值
+                    String[] value1 = value.split("\\[\\[");
+                    String[] value2 = value1[1].split("]]");
                     try {
                         newChecks.put(key,getResponseValue(response.getBody(),value2[0]));
                     } catch (NullPointerException e) {
                         throw new CheckException("用例\"ID：" + response.getCaseInfo().getId() + "--" + response.getCaseInfo().getName() + "\"中数据库检查点需要替换的返回值参数：‘" +value2[0] + "’在接口返回中不存在无法替换" );
 
                     }
-                } else {
+                } else if(value.contains("PARAMS[[") && value.contains("]]")) {
+                    //替换数据库检查点的中PARAMS标识的值
+                    String[] value1 = value.split("\\[\\[");
+                    String[] value2 = value1[1].split("]]");
+                    for (Object key1:params.keySet()) {
+                        if (key1.toString().equals(value2[0])) {
+                            newChecks.put(key1,params.get(key1));
+                        }
+                    }
+                }else{
                     newChecks.put(key,checks.get(key));
                 }
             }
@@ -208,15 +225,31 @@ public class Http {
 
             //获取请求用例数据库检查中的sql并替换其中需要替换的值
             String sql = dbCheck.getSql();
-            if (sql.contains("RESPONSE[") && sql.contains("]")) {
-                String[] value1 = sql.split("\\[");
-                String[] value2 = value1[1].split("]");
+            if (sql.contains("RESPONSE<") && sql.contains(">")) {
+                String[] value1 = sql.split("RESPONSE<");
+                String[] value2 = value1[1].split(">");
+                String key = value2[0].replaceAll("\\[","");
+                key = key.replaceAll("]","");
+                sql = sql.replaceAll("\\[","");
+                sql = sql.replaceAll("]","");
                 try {
-                    sql = sql.replaceAll("RESPONSE\\[" + value2[0] + "]","'" + getResponseValue(response.getBody(),value2[0]) + "'");
+                    sql = sql.replaceAll("RESPONSE<" + key + ">","'" + getResponseValue(response.getBody(),value2[0]) + "'");
                 } catch (NullPointerException e) {
                     throw new CheckException("用例\"ID：" + response.getCaseInfo().getId() + "--" + response.getCaseInfo().getName() + "\"中数据库检查sql需要替换的返回值参数：‘" +value2[0] + "’在接口返回中不存在无法替换" );
                 }
-
+            }
+            if (sql.contains("PARAMS<") && sql.contains(">")) {
+                String[] value1 = sql.split("PARAMS<");
+                String[] value2 = value1[1].split(">");
+                for (Object key:params.keySet()) {
+                    if (value2[0].equals(key.toString())) {
+                        try {
+                            sql = sql.replaceAll("PARAMS<" + value2[0] + ">","'" + params.get(key) + "'");
+                        } catch (NullPointerException e) {
+                            throw new CheckException("用例\"ID：" + response.getCaseInfo().getId() + "--" + response.getCaseInfo().getName() + "\"中数据库检查sql需要替换的返回值参数：‘" +value2[0] + "’在接口返回中不存在无法替换" );
+                        }
+                    }
+                }
             }
             dbCheck.setSql(sql);
         }
@@ -229,22 +262,30 @@ public class Http {
      * @param key   key的值
      * @return 返回key对应的值
      */
-    private static String getResponseValue(List<Map<Object,Object>> responseBody,String key) {
-        List<String> values = new ArrayList<>();
-        for (Map<Object,Object> body:responseBody) {
-            for (Object key1:body.keySet()) {
-                if (key1.toString().equals(key)) {
-                    values.add(body.get(key1).toString());
-                }
-            }
+    private static String getResponseValue(String responseBody,String key) {
+        String value="";
+        try {
+            value = JsonHelper.getValue(responseBody,key).toString();
+            return value;
+        } catch (JSONException je) {
+            throw new CheckException("接口返回信息中不存在：‘" +key + "’对应的值;无法替换数据库检查中应替换的变量" );
         }
-        if (values.size() == 1) {
-            return values.get(0);
-        }else if (values.size() > 1) {
-            throw new CheckException("接口返回信息中存在多个：‘" +key + "’对应的值;无法确认需要替换哪个值" );
-        }else {
-            throw new CheckException("接口返回信息中不存在：‘" +key + "’对应的值;无法进行返回信息的替换" );
-        }
+
+//        List<String> values = new ArrayList<>();
+//        for (Map<Object,Object> body:responseBody) {
+//            for (Object key1:body.keySet()) {
+//                if (key1.toString().equals(key)) {
+//                    values.add(body.get(key1).toString());
+//                }
+//            }
+//        }
+//        if (values.size() == 1) {
+//            return values.get(0);
+//        }else if (values.size() > 1) {
+//            throw new CheckException("接口返回信息中存在多个：‘" +key + "’对应的值;无法确认需要替换哪个值" );
+//        }else {
+//            throw new CheckException("接口返回信息中不存在：‘" +key + "’对应的值;无法进行返回信息的替换" );
+//        }
     }
 
 }

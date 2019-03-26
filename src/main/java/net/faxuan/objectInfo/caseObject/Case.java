@@ -22,8 +22,12 @@ public class Case {
     private Map<Object,Object> params;
     @JSONField(name = "responseCheck",ordinal = 6)
     private Map<Object,Object> responseCheck;
-    @JSONField(name = "dbcheck",ordinal = 7)
+    @JSONField(name = "falseResponseCheck",ordinal = 7)
+    private List<Map<Object,Object>> falseResponseCheck;
+    @JSONField(name = "dbcheck",ordinal = 8)
     private List<DBCheck> dbChecks;
+    @JSONField(name = "isNormalCase",ordinal = 9)
+    private boolean isNormalCase = true;
 
     public long getId() {
         return id;
@@ -78,6 +82,22 @@ public class Case {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<Map<Object,Object>> getFalseResponseCheck() {
+        return falseResponseCheck;
+    }
+
+    public void setFalseResponseCheck(List<Map<Object,Object>> falseResponseCheck) {
+        this.falseResponseCheck = falseResponseCheck;
+    }
+
+    public boolean isNormalCase() {
+        return isNormalCase;
+    }
+
+    public void setIsNormalCase(boolean normalCase) {
+        isNormalCase = normalCase;
     }
 
     @Override

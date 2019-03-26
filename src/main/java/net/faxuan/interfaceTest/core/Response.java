@@ -28,7 +28,7 @@ public class Response {
     /**
      * 返回结果
      */
-    private List<Map<Object,Object>> body;
+    private String body;
     /**
      * 运行时间
      */
@@ -78,12 +78,12 @@ public class Response {
         this.cookies = cookies;
     }
 
-    public List<Map<Object,Object>> getBody() {
+    public String getBody() {
         return body;
     }
 
     public void setBody(String body) {
-        this.body = JsonHelper.convertJsonToListMap(body);
+        this.body = body;
     }
 
     public Long getRunTime() {

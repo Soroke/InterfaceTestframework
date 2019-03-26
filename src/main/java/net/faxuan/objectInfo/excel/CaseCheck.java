@@ -1,6 +1,10 @@
 package net.faxuan.objectInfo.excel;
 
+import com.sun.prism.shader.Solid_TextureYV12_AlphaTest_Loader;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,6 +19,7 @@ public class CaseCheck {
     private String params;
     private String statusCode;
     private Map<Object,Object> responseCheck;
+    private List<Map<Object,Object>> falseResponseCheck;
 
     public Long getId() {
         return id;
@@ -70,16 +75,47 @@ public class CaseCheck {
 
     public void setResponseCheck(String responseCheck) {
         Map<Object,Object> responseChecks = new HashMap<Object,Object>();
-        String[] checks = responseCheck.split("&");
+        String[] checks = responseCheck.split("&&");
         for (String check:checks) {
-            String[] keyValue = check.split("=");
-            try {
-                responseChecks.put(keyValue[0],keyValue[1]);
-            } catch (ArrayIndexOutOfBoundsException e) {
-                responseChecks.put(keyValue[0],"");
+            if (! check.contains("!=")) {
+                try{
+                    String key = check.substring(0,check.indexOf("="));
+                    String value = check.substring(check.indexOf("=") + 1);
+                    responseChecks.put(key,value);
+                } catch (StringIndexOutOfBoundsException e) {}
             }
+//            String[] keyValue = check.split("=");
+//            try {
+//                responseChecks.put(keyValue[0],keyValue[1]);
+//            } catch (ArrayIndexOutOfBoundsException e) {
+//                responseChecks.put(keyValue[0],"");
+//            }
         }
         this.responseCheck = responseChecks;
+    }
+
+
+    public void setFalseResponseCheck(String responseCheck) {
+        //使用list避免检查点中有重复key；会覆盖
+        List<Map<Object,Object>> falseResponseChecks = new ArrayList<>();
+//        Map<Object,Object> falseResponseChecks = new HashMap<Object,Object>();
+        String[] checks = responseCheck.split("&&");
+        for (String check:checks) {
+            if (check.contains("!=")) {
+                try{
+                    String key = check.substring(0,check.indexOf("!="));
+                    String value = check.substring(check.indexOf("!=") + 2);
+                    Map<Object,Object> keyValue = new HashMap<Object,Object>();
+                    keyValue.put(key,value);
+                    falseResponseChecks.add(keyValue);
+                } catch (StringIndexOutOfBoundsException e) {}
+            }
+        }
+        this.falseResponseCheck=falseResponseChecks;
+    }
+
+    public List<Map<Object,Object>> getFalseResponseCheck() {
+        return falseResponseCheck;
     }
 
     @Override

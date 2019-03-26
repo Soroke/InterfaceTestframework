@@ -1,7 +1,9 @@
 package net.faxuan.interfaceTest.util;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,19 +65,81 @@ public class JsonHelper {
     }
 
     /**
-     * 获取json中的值
+     * 从json中取出key路径的value
+     * 例子
+     * json={"code":200,"data":{"auth":{"id":"10086"}},"data_2":[{"uid":"321"},{"uid":"123"}]}
+     *  key="code"          return 200
+     *  key="data.auth"     return {"id":"10086"}
+     *  key="data.auth.id"  return "10086"
+     *  key="data_2[0]"     return {"uid":"321"}
+     *  key="data_2[1].uid" return 123
+     *
+     * @param json
+     *      json串 可以是任意类型
+     * @param key
+     *      完整的key路径 key之间用.连接
+     * @return
+     *      value
+     */
+    public static Object getValue(Object json, String key){
+        Object obj = getValue_(json, key);
+        if(obj instanceof notFond || obj == null){
+            String lastValue = ((notFond) obj).getValie();
+            throw new JSONException("没有从json中找到key\njson:"+json+"\nkey:" + key.substring(0, key.indexOf(lastValue))+lastValue);
+        }else {
+            return obj;
+        }
+    }
+
+    /**
+     * 取json里的value
      * @param json
      * @param key
      * @return
      */
-//    public static String getValue(String json,String key) {
-//        Map<Object,Object> datas = convertJsonToMap(json);
-//
-//        for (Object key1:datas.keySet()) {
-//            if (key.equals(key1.toString())) {
-//                return datas.get(key1).toString();
-//            }
-//        }
-//        return null;
-//    }
+    private static Object getValue_(Object json, String key) {
+        key = key.replace("]", "");
+        key = key.replace("[", ".");
+        String keys[] = key.split("\\.");
+
+        try{
+            if(json instanceof JSONArray){
+                if(keys.length==1){
+                    return ((JSONArray) json).get(Integer.parseInt(keys[0]));
+                }else {
+                    return getValue_(((JSONArray) json).get(Integer.parseInt(keys[0])), key.substring(key.indexOf(".")+1));
+                }
+            }
+            if(json instanceof JSONObject){
+                if(keys.length==1){
+                    if (null == ((JSONObject) json).get(keys[0])) {
+                        return new notFond(keys[0]);
+                    }else {
+                        return ((JSONObject) json).get(keys[0]);
+                    }
+                }else {
+                    if(null == ((JSONObject) json).get(keys[0]))
+                        return new notFond(keys[0]);
+                    else
+                        return getValue_(((JSONObject) json).get(keys[0]), key.substring(key.indexOf(".")+1));
+                }
+            }
+            if(json instanceof String){
+                return getValue_(JSON.parse((String) json), key);
+            }
+        }catch (Exception e){
+            return new notFond(keys[0]);
+        }
+        return new notFond(keys[0]);
+    }
+
+    static class notFond{
+        String valie;
+        public notFond(String valie){
+            this.valie = valie;
+        }
+        public String getValie(){
+            return this.valie;
+        }
+    }
 }
